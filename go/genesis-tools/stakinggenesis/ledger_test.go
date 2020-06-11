@@ -79,11 +79,7 @@ func genericGenesisOptions(entCount int) stakinggenesis.GenesisOptions {
 		DefaultSelfEscrowAmount: 250,
 		DefaultFundingAmount:    250,
 		ConsensusParametersLoader: func() staking.ConsensusParameters {
-			return staking.ConsensusParameters{
-				Thresholds: map[staking.ThresholdKind]quantity.Quantity{
-					staking.KindEntity: *quantity.NewFromUint64(10_000_000_000),
-				},
-			}
+			return staking.ConsensusParameters{}
 		},
 	}
 }
