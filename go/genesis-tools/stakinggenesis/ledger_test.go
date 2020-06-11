@@ -12,6 +12,7 @@ import (
 	"github.com/oasisprotocol/oasis-core/go/common/crypto/signature"
 	fileSigner "github.com/oasisprotocol/oasis-core/go/common/crypto/signature/signers/file"
 	"github.com/oasisprotocol/oasis-core/go/common/entity"
+	"github.com/oasisprotocol/oasis-core/go/common/quantity"
 	staking "github.com/oasisprotocol/oasis-core/go/staking/api"
 )
 
@@ -78,7 +79,11 @@ func genericGenesisOptions(entCount int) stakinggenesis.GenesisOptions {
 		DefaultSelfEscrowAmount: 250,
 		DefaultFundingAmount:    250,
 		ConsensusParametersLoader: func() staking.ConsensusParameters {
-			return staking.ConsensusParameters{}
+			return staking.ConsensusParameters{
+				Thresholds: map[staking.ThresholdKind]quantity.Quantity{
+					staking.KindEntity: *quantity.NewFromUint64(10_000_000_000),
+				},
+			}
 		},
 	}
 }
@@ -101,4 +106,13 @@ func TestGenerateStakingLedgerWithFaucet(t *testing.T) {
 		require.NoError(t, err)
 	}
 	require.Equal(t, "99989950000", genesis.CommonPool.String())
+}
+
+func TestLoadStakingParameters(t *testing.T) {
+	// This is a bit brittle
+	params, err := stakinggenesis.LoadStakingConsensusParameters("fixtures/staking_ledger.json")
+
+	require.NoError(t, err)
+
+	require.Equal(t, params.Thresholds[staking.KindEntity], *quantity.NewFromUint64(100_000_000_000))
 }
